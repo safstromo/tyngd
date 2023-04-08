@@ -23,4 +23,7 @@ impl Exercise {
             video: "".to_string(),
         }
     }
+    pub fn name(&self) -> String {
+        self.name.to_string()
+    }
 }
