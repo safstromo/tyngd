@@ -1,6 +1,7 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
 mod exercise;
+mod schema;
 
 use std::fmt::format;
 use rocket::http::hyper::StatusCode;
