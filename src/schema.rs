@@ -1,13 +1,13 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
-    exercise (ExerciseId) {
-        ExerciseId -> Integer,
-        Name -> Nullable<Varchar>,
-        Description -> Nullable<Text>,
-        Weight -> Nullable<Integer>,
-        Reps -> Nullable<Integer>,
-        ExSet -> Nullable<Integer>,
-        Video -> Nullable<Text>,
+    exercise (exercise_id) {
+        exercise_id -> Integer,
+        name -> Varchar,
+        description -> Text,
+        weight -> Integer,
+        reps -> Integer,
+        ex_set -> Integer,
+        video -> Text,
     }
 }
