@@ -50,13 +50,13 @@ impl Exercise {
             .expect("error")
 
     }
-    // pub fn get_exercise_by_name(exercise: Exercise, connection: &MysqlConnection) -> Vec<Exercise>{
+    // pub fn get_exercise_by_name(name: &String, connection: &mut MysqlConnection) -> Vec<Exercise> {
     //     all_exercises
-    //         .filter(exercise::name)
+    //         .filter(name)
     //         .load::<Exercise>(connection)
     //         .expect("Unable to find")
     // }
-    //
+
     pub fn insert_exercise(exercise: NewExercise, connection: &mut MysqlConnection) -> bool {
         diesel::insert_into(exercise::table)
             .values(&exercise)

@@ -13,32 +13,29 @@ use diesel::insert_into;
 use diesel::mysql::MysqlConnection;
 use crate::schema::exercise::dsl::{exercise as other_exercise};
 use diesel::associations::HasTable;
-use diesel::sql_types::Json;
 use rocket::{Rocket, routes};
 use serde_json::{json, Value};
 use rocket_db_pools::Database;
+use rocket_contrib::json::Json;
+use rocket::get;
 
 
-// #[get("/")]
-// fn index(connection: &mut MysqlConnection) -> Json {
-//     let clean = Exercise::new("Clean".to_string());
-//     let exercises = Exercise::get_all(connection);
-//     Json(json!({
-//         "status": 200,
-//         "result": exercises,
-//     }))
-// }
+#[get("/")]
+fn index() -> Json<Vec<Exercise>> {
+    let exercises = Exercise::get_all(&mut establish_connection());
+      Json(exercises)
+}
+
 
 // #[post("/new", format = "application/json", data = "<new_exercise>")]
-// fn new_exercise(connection: MysqlConnection, new_exercise: Json) -> Json {
-//     Json(json!({
-//         "status": Exercise::insert_exercise(new_exercise.into_inner(), &connection),
-//         "result": Exercise::get_all(&connection).first(),
-//     }))
+// fn new_exercise(new_exercise: NewExercise) -> Json<&Exercise> {
+//     let connection = &mut establish_connection();
+//     Exercise::insert_exercise(new_exercise, connection);
+//     // Json(Exercise::get_exercise_by_name(&new_exercise.name,connection).first().unwrap())
 // }
 
 fn rocket() -> Rocket {
-    rocket::ignite().mount("/", routes![/*index,new_exercise*/])
+    rocket::ignite().mount("/", routes![index/*,new_exercise*/])
 }
 
 fn main() {
@@ -56,7 +53,7 @@ fn main() {
     let list = Exercise::get_all(&mut establish_connection());
 
     for ex in list {
-        println!("{}", ex.name())
+        println!("{:?}", ex)
     }
     rocket()
         .launch();
