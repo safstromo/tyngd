@@ -3,6 +3,7 @@
 mod exercise;
 mod schema;
 
+use std::collections::HashMap;
 use diesel::prelude::*;
 use serde::{Serialize, Deserialize};
 use crate::exercise::{Exercise, NewExercise};
@@ -18,24 +19,30 @@ use serde_json::{json, Value};
 use rocket_db_pools::Database;
 use rocket_contrib::json::Json;
 use rocket::get;
+use rocket_contrib::templates::Template;
 
 
 #[get("/")]
-fn index() -> Json<Vec<Exercise>> {
+fn index() -> Template {
+    let mut context: HashMap<i32,i32> = HashMap::new();
+    Template::render("home",context)
+}
+#[get("/api")]
+fn get_all() -> Json<Vec<Exercise>> {
     let exercises = Exercise::get_all(&mut establish_connection());
-      Json(exercises)
+    Json(exercises)
 }
 
 
 // #[post("/new", format = "application/json", data = "<new_exercise>")]
-// fn new_exercise(new_exercise: NewExercise) -> Json<&Exercise> {
+// fn new_exercise(new_exercise: NewExercise)  {
 //     let connection = &mut establish_connection();
 //     Exercise::insert_exercise(new_exercise, connection);
 //     // Json(Exercise::get_exercise_by_name(&new_exercise.name,connection).first().unwrap())
 // }
 
 fn rocket() -> Rocket {
-    rocket::ignite().mount("/", routes![index/*,new_exercise*/])
+    rocket::ignite().attach(Template::fairing()).mount("/", routes![index,get_all/*new_exercise*/])
 }
 
 fn main() {

@@ -2,8 +2,10 @@ use serde::{Serialize, Deserialize};
 use diesel::prelude::*;
 use diesel::mysql::MysqlConnection;
 use diesel;
+use rocket::FromForm;
 use super::schema::exercise::dsl::exercise as all_exercises;
 use crate::schema::exercise;
+
 
 
 #[derive(Insertable)]
