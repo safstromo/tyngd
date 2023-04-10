@@ -77,11 +77,14 @@ pub fn establish_connection() -> MysqlConnection {
 }
 
 mod test {
+    use rocket::http::Status;
+    use rocket::local::Client;
+    use crate::rocket;
 
     #[test]
     fn index() {
         let client = Client::new(rocket()).expect("Rocket");
-        let mut response = client.get("/").dispatch();
+        let response = client.get("/").dispatch();
         assert_eq!(response.status(), Status::Ok)
     }
 }
