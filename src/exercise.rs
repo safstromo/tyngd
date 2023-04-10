@@ -1,23 +1,21 @@
-use serde::{Serialize, Deserialize};
-use diesel::prelude::*;
-use diesel::mysql::MysqlConnection;
-use diesel;
-use rocket::FromForm;
 use super::schema::exercise::dsl::exercise as all_exercises;
 use crate::schema::exercise;
+use diesel;
+use diesel::mysql::MysqlConnection;
+use diesel::prelude::*;
+use rocket::data::{FromData, FromDataSimple};
+use rocket::FromForm;
+use serde::{Deserialize, Serialize};
 
-
-
-#[derive(Insertable)]
+#[derive(Insertable,Deserialize)]
 #[diesel(table_name = exercise)]
-pub struct NewExercise <'a>{
-  pub  name: &'a String,
-   pub description: &'a String,
+pub struct NewExercise<> {
+    pub name: String,
+    pub description: String,
     pub weight: i32,
     pub reps: i32,
     pub ex_set: i32,
-    pub video: &'a String,
-
+    pub video: String,
 }
 #[derive(Serialize, Deserialize, Queryable, Debug, Eq, PartialEq)]
 pub struct Exercise {
@@ -47,10 +45,7 @@ impl Exercise {
     }
 
     pub fn get_all(connection: &mut MysqlConnection) -> Vec<Exercise> {
-        all_exercises
-            .load::<Exercise>(connection)
-            .expect("error")
-
+        all_exercises.load::<Exercise>(connection).expect("error")
     }
     // pub fn get_exercise_by_name(name: &String, connection: &mut MysqlConnection) -> Vec<Exercise> {
     //     all_exercises

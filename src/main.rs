@@ -1,58 +1,61 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
+use std::collections::HashMap;
+use std::env;
+
+use diesel::associations::HasTable;
+use diesel::insert_into;
+use diesel::mysql::MysqlConnection;
+use diesel::prelude::*;
+use dotenv::dotenv;
+use rocket::get;
+use rocket::post;
+use rocket::{routes, Rocket};
+use rocket::request::Form;
+use rocket_contrib::json::{Json, JsonValue};
+use rocket_contrib::templates::Template;
+use serde::{Deserialize, Serialize};
+
+use crate::exercise::{Exercise, NewExercise};
+use crate::schema::exercise::dsl::exercise as other_exercise;
+use crate::schema::exercise::table;
+
 mod exercise;
 mod schema;
 
-use std::collections::HashMap;
-use diesel::prelude::*;
-use serde::{Serialize, Deserialize};
-use crate::exercise::{Exercise, NewExercise};
-use crate::schema::exercise::table;
-use dotenv::dotenv;
-use std::env;
-use diesel::insert_into;
-use diesel::mysql::MysqlConnection;
-use crate::schema::exercise::dsl::{exercise as other_exercise};
-use diesel::associations::HasTable;
-use rocket::{Rocket, routes};
-use serde_json::{json, Value};
-use rocket_db_pools::Database;
-use rocket_contrib::json::Json;
-use rocket::get;
-use rocket_contrib::templates::Template;
-
-
 #[get("/")]
 fn index() -> Template {
-    let mut context: HashMap<i32,i32> = HashMap::new();
-    Template::render("home",context)
+    let context: HashMap<i32, i32> = HashMap::new();
+    Template::render("home", context)
 }
+
 #[get("/api")]
 fn get_all() -> Json<Vec<Exercise>> {
     let exercises = Exercise::get_all(&mut establish_connection());
     Json(exercises)
 }
 
-
-// #[post("/new", format = "application/json", data = "<new_exercise>")]
-// fn new_exercise(new_exercise: NewExercise)  {
-//     let connection = &mut establish_connection();
-//     Exercise::insert_exercise(new_exercise, connection);
-//     // Json(Exercise::get_exercise_by_name(&new_exercise.name,connection).first().unwrap())
-// }
+#[post("/new", format = "json", data = "<new_exercise>")]
+fn new_exercise(new_exercise: Json<NewExercise>) {
+    let connection = &mut establish_connection();
+    Exercise::insert_exercise(new_exercise.into_inner(), connection);
+    // Json(Exercise::get_exercise_by_name(&new_exercise.name,connection).first().unwrap())
+}
 
 fn rocket() -> Rocket {
-    rocket::ignite().attach(Template::fairing()).mount("/", routes![index,get_all/*new_exercise*/])
+    rocket::ignite()
+        .attach(Template::fairing())
+        .mount("/", routes![index, get_all ,new_exercise])
 }
 
 fn main() {
     let test = NewExercise {
-        name: &"test".to_string(),
-        description: &"tst".to_string(),
+        name: "test".to_string(),
+        description: "tst".to_string(),
         weight: 0,
         reps: 0,
         ex_set: 0,
-        video: &"video".to_string(),
+        video: "video".to_string(),
     };
     let result = Exercise::insert_exercise(test, &mut establish_connection());
     println!("{}", result);
@@ -62,8 +65,7 @@ fn main() {
     for ex in list {
         println!("{:?}", ex)
     }
-    rocket()
-        .launch();
+    rocket().launch();
 }
 
 pub fn establish_connection() -> MysqlConnection {
@@ -75,10 +77,12 @@ pub fn establish_connection() -> MysqlConnection {
 }
 
 mod test {
-    use super::rocket;
-    use rocket::local::Client;
     use rocket::http::Status;
+    use rocket::local::Client;
+
     use crate::main;
+
+    use super::rocket;
 
     #[test]
     fn index() {
