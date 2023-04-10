@@ -5,6 +5,7 @@ use diesel::mysql::MysqlConnection;
 use diesel::prelude::*;
 
 use serde::{Deserialize, Serialize};
+use crate::schema::exercise::name;
 
 #[derive(Insertable, Deserialize)]
 #[diesel(table_name = exercise)]
@@ -28,17 +29,7 @@ pub struct Exercise {
 }
 
 impl Exercise {
-    pub fn new(name: String) -> Exercise {
-        Exercise {
-            exercise_id: 0,
-            name,
-            description: "".to_string(),
-            weight: 0,
-            reps: 0,
-            ex_set: 0,
-            video: "".to_string(),
-        }
-    }
+
     pub fn name(&self) -> String {
         self.name.to_string()
     }
@@ -46,12 +37,12 @@ impl Exercise {
     pub fn get_all(connection: &mut MysqlConnection) -> Vec<Exercise> {
         all_exercises.load::<Exercise>(connection).expect("error")
     }
-    // pub fn get_exercise_by_name(name: &String, connection: &mut MysqlConnection) -> Vec<Exercise> {
-    //     all_exercises
-    //         .filter(name)
-    //         .load::<Exercise>(connection)
-    //         .expect("Unable to find")
-    // }
+    pub fn get_exercise_by_name(exercise_name: &String, connection: &mut MysqlConnection) -> Vec<Exercise> {
+        all_exercises
+            .filter(name.eq(exercise_name))
+            .load(connection)
+            .expect("Error getting by name")
+    }
 
     pub fn insert_exercise(exercise: NewExercise, connection: &mut MysqlConnection) -> bool {
         diesel::insert_into(exercise::table)

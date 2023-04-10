@@ -36,10 +36,11 @@ fn get_all() -> Json<Vec<Exercise>> {
 #[post("/new", format = "json", data = "<new_exercise>")]
 fn new_exercise(new_exercise: Json<NewExercise>) -> status::Created<String> {
     let connection = &mut establish_connection();
+    let exercise_name = String::from(&new_exercise.name);
     Exercise::insert_exercise(new_exercise.into_inner(), connection);
-    // Json(Exercise::get_exercise_by_name(&new_exercise.name,connection).first().unwrap())
-    //TODO Check if exists
-    status::Created(String::from("Created"), Some(format!("YES")))
+    let added_exercise = Exercise::get_exercise_by_name(&exercise_name, connection);
+    //TODO Check if exists and if exist update
+    status::Created(String::from("Created"), Some(format!("{:?}", added_exercise.first().unwrap())))
 }
 
 fn rocket() -> Rocket {
@@ -76,6 +77,8 @@ pub fn establish_connection() -> MysqlConnection {
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
 
+
+#[cfg(test)]
 mod test {
     use rocket::http::Status;
     use rocket::local::Client;
