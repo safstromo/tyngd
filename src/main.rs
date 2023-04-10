@@ -3,25 +3,20 @@
 use std::collections::HashMap;
 use std::env;
 
-use diesel::associations::HasTable;
-use diesel::insert_into;
 use diesel::mysql::MysqlConnection;
 use diesel::prelude::*;
 use dotenv::dotenv;
+use rocket::{routes, Rocket};
+
 use rocket::get;
 use rocket::post;
-use rocket::{routes, Rocket};
-use rocket::request::Form;
-use rocket_contrib::json;
-use rocket_contrib::json::{Json, JsonValue};
+
+use rocket::response::status;
+
+use rocket_contrib::json::Json;
 use rocket_contrib::templates::Template;
-use serde::{Deserialize, Serialize};
 
 use crate::exercise::{Exercise, NewExercise};
-use crate::schema::exercise::dsl::exercise as other_exercise;
-use crate::schema::exercise::table;
-use rocket::config::Value;
-use rocket::response::status;
 
 mod exercise;
 mod schema;
@@ -39,18 +34,18 @@ fn get_all() -> Json<Vec<Exercise>> {
 }
 
 #[post("/new", format = "json", data = "<new_exercise>")]
-fn new_exercise(new_exercise: Json<NewExercise>) -> status::Created<String>{
+fn new_exercise(new_exercise: Json<NewExercise>) -> status::Created<String> {
     let connection = &mut establish_connection();
     Exercise::insert_exercise(new_exercise.into_inner(), connection);
     // Json(Exercise::get_exercise_by_name(&new_exercise.name,connection).first().unwrap())
     //TODO Check if exists
-  status::Created(String::from("Created"), Some(format!("YES")))
+    status::Created(String::from("Created"), Some(format!("YES")))
 }
 
 fn rocket() -> Rocket {
     rocket::ignite()
         .attach(Template::fairing())
-        .mount("/", routes![index, get_all ,new_exercise])
+        .mount("/", routes![index, get_all, new_exercise])
 }
 
 fn main() {
@@ -82,12 +77,6 @@ pub fn establish_connection() -> MysqlConnection {
 }
 
 mod test {
-    use rocket::http::Status;
-    use rocket::local::Client;
-
-    use crate::main;
-
-    use super::rocket;
 
     #[test]
     fn index() {

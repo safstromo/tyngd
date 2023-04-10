@@ -3,13 +3,12 @@ use crate::schema::exercise;
 use diesel;
 use diesel::mysql::MysqlConnection;
 use diesel::prelude::*;
-use rocket::data::{FromData, FromDataSimple};
-use rocket::FromForm;
+
 use serde::{Deserialize, Serialize};
 
-#[derive(Insertable,Deserialize)]
+#[derive(Insertable, Deserialize)]
 #[diesel(table_name = exercise)]
-pub struct NewExercise<> {
+pub struct NewExercise {
     pub name: String,
     pub description: String,
     pub weight: i32,
