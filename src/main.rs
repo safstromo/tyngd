@@ -40,7 +40,8 @@ fn new_exercise(new_exercise: Json<NewExercise>) -> status::Created<String> {
     Exercise::insert_exercise(new_exercise.into_inner(), connection);
     let added_exercise = Exercise::get_exercise_by_name(&exercise_name, connection);
     //TODO Check if exists and if exist update
-    status::Created(String::from("Created"), Some(serde_json::to_string(added_exercise.first().unwrap()).unwrap()))
+    status::Created(String::from("Created"),
+                    Some(serde_json::to_string(added_exercise.first().unwrap()).unwrap()))
 }
 
 fn rocket() -> Rocket {
@@ -83,6 +84,8 @@ mod test {
     use rocket::http::Status;
     use rocket::local::Client;
     use crate::rocket;
+
+    //TODO More tests!
 
     #[test]
     fn index() {
