@@ -5,9 +5,6 @@ diesel::table! {
         exercise_id -> Integer,
         name -> Varchar,
         description -> Text,
-        weight -> Integer,
-        reps -> Integer,
-        ex_set -> Integer,
         video -> Text,
     }
 }
