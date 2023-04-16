@@ -1,4 +1,3 @@
-use std::process::id;
 use super::schema::exercise::dsl::exercise as all_exercises;
 use crate::schema::exercise;
 use diesel;
@@ -6,11 +5,9 @@ use diesel::mysql::MysqlConnection;
 use diesel::prelude::*;
 use diesel::result::Error;
 
-use rocket::serde::{Serialize, Deserialize};
-use rocket::serde::json::{Json, Value};
+use rocket::serde::{Deserialize, Serialize};
 
-// use serde::{Deserialize, Serialize};
-use crate::schema::exercise::{exercise_id, name};
+use crate::schema::exercise::name;
 
 #[derive(Insertable, Deserialize, Queryable)]
 #[diesel(table_name = exercise)]
@@ -30,11 +27,13 @@ pub struct Exercise {
 }
 
 impl Exercise {
-
     pub fn get_all(connection: &mut MysqlConnection) -> Vec<Exercise> {
         all_exercises.load::<Exercise>(connection).expect("error")
     }
-    pub fn get_exercise_by_name(exercise_name: &String, connection: &mut MysqlConnection) -> Exercise {
+    pub fn get_exercise_by_name(
+        exercise_name: &String,
+        connection: &mut MysqlConnection,
+    ) -> Exercise {
         let exercises_found: Vec<Exercise> = all_exercises
             .filter(name.eq(exercise_name))
             .load(connection)
@@ -43,10 +42,11 @@ impl Exercise {
         exercises_found.first().unwrap().clone()
     }
 
-    pub fn get_exercise_by_id(id: &i32, connection: &mut MysqlConnection) -> Result<Exercise, Error> {
-        all_exercises
-            .find(id)
-            .first(connection)
+    pub fn get_exercise_by_id(
+        id: &i32,
+        connection: &mut MysqlConnection,
+    ) -> Result<Exercise, Error> {
+        all_exercises.find(id).first(connection)
     }
 
     pub fn insert_exercise(exercise: NewExercise, connection: &mut MysqlConnection) -> Exercise {

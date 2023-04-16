@@ -1,5 +1,5 @@
 #![feature(proc_macro_hygiene, decl_macro)]
-#![warn(clippy::all,clippy::pedantic)]
+#![warn(clippy::all, clippy::pedantic)]
 
 use std::collections::HashMap;
 use std::env;
@@ -7,23 +7,19 @@ use std::env;
 use diesel::mysql::MysqlConnection;
 use diesel::prelude::*;
 use dotenv::dotenv;
-use rocket::{routes, Rocket, Build};
+use rocket::{routes, Build, Rocket};
 
 #[macro_use]
 extern crate rocket;
 
 use rocket::get;
-use rocket::http::Status;
+
 use rocket::post;
 
-use rocket::response::status;
 use rocket::response::status::Created;
-
-// use rocket_contrib::json::Json;
 use rocket_dyn_templates::Template;
-use serde::de::Unexpected::Str;
-use rocket::serde::json::{Json, Value, json};
 
+use rocket::serde::json::Json;
 
 use crate::exercise::{Exercise, NewExercise};
 
@@ -34,9 +30,7 @@ mod schema;
 async fn index() -> Template {
     let context: HashMap<i32, i32> = HashMap::new();
     Template::render("home", context)
-
 }
-
 
 #[get("/api", format = "json")]
 async fn get_all() -> Option<Json<Vec<Exercise>>> {
@@ -52,7 +46,6 @@ async fn get_by_id(id: i32) -> Option<Json<Exercise>> {
 
 #[post("/new", format = "json", data = "<new_exercise>")]
 async fn new_exercise(new_exercise: Json<NewExercise>) -> Created<Json<Exercise>> {
-
     //TODO Check if exists and if exist update
 
     let connection = &mut establish_connection();
@@ -67,7 +60,7 @@ async fn new_exercise(new_exercise: Json<NewExercise>) -> Created<Json<Exercise>
 fn rocket() -> Rocket<Build> {
     rocket::build()
         .attach(Template::fairing())
-        .mount("/", routes![index, get_all, new_exercise,get_by_id])
+        .mount("/", routes![index, get_all, new_exercise, get_by_id])
 }
 
 pub fn establish_connection() -> MysqlConnection {
@@ -77,7 +70,6 @@ pub fn establish_connection() -> MysqlConnection {
     MysqlConnection::establish(&database_url)
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
-
 
 // #[cfg(test)]
 // mod test {

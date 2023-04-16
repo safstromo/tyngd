@@ -8,11 +8,7 @@ edition = "2021"
 [dependencies]
 diesel = { version = "2.0.3", features = ["mysql"] }
 dotenv = "0.15.0"
-r2d2 = "0.8.10"
-r2d2-diesel = "1.0.0"
 rocket = { version = "0.5.0-rc.3", features = ["json"] }
-rocket_contrib = { version = "0.4.11", features = ["handlebars_templates", "tera_templates"] }
-rocket_db_pools = "0.1.0-rc.3"
-rocket_dyn_templates = { version = "0.1.0-rc.3", features = ["handlebars","tera"] }
+rocket_dyn_templates = { version = "0.1.0-rc.3", features = ["handlebars", "tera"] }
 serde = { version = "1.0.159", features = ["derive"] }
 serde_json = "1.0.95"
