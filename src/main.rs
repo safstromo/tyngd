@@ -1,4 +1,5 @@
 #![feature(proc_macro_hygiene, decl_macro)]
+#![warn(clippy::all,clippy::pedantic)]
 
 use std::collections::HashMap;
 use std::env;
@@ -19,7 +20,7 @@ use rocket::response::status;
 use rocket::response::status::Created;
 
 // use rocket_contrib::json::Json;
-use rocket_contrib::templates::Template;
+use rocket_dyn_templates::Template;
 use serde::de::Unexpected::Str;
 use rocket::serde::json::{Json, Value, json};
 
@@ -30,14 +31,14 @@ mod exercise;
 mod schema;
 
 #[get("/")]
-async fn index() -> String {//Template {
-    // let context: HashMap<i32, i32> = HashMap::new();
-    // Template::render("home", context)
-    String::from("HellO!")
+async fn index() -> Template {
+    let context: HashMap<i32, i32> = HashMap::new();
+    Template::render("home", context)
+
 }
 
 
-#[get("/api")]
+#[get("/api", format = "json")]
 async fn get_all() -> Option<Json<Vec<Exercise>>> {
     let exercises = Exercise::get_all(&mut establish_connection());
     Some(Json(exercises))
@@ -51,21 +52,21 @@ async fn get_by_id(id: i32) -> Option<Json<Exercise>> {
 
 #[post("/new", format = "json", data = "<new_exercise>")]
 async fn new_exercise(new_exercise: Json<NewExercise>) -> Created<Json<Exercise>> {
+
+    //TODO Check if exists and if exist update
+
     let connection = &mut establish_connection();
     let exercise_name = String::from(&new_exercise.name);
     Exercise::insert_exercise(new_exercise.into_inner(), connection);
     let added_exercise = Exercise::get_exercise_by_name(&exercise_name, connection);
-    let id = String::from(added_exercise.exercise_id.to_string());
-    //TODO Check if exists and if exist update
-    let url = format!("/api/{}", id);
-
+    let url = format!("/api/{}", added_exercise.name);
     Created::new(url).body(Json(added_exercise))
 }
 
 #[launch]
 fn rocket() -> Rocket<Build> {
     rocket::build()
-        // .attach(Template::fairing())
+        .attach(Template::fairing())
         .mount("/", routes![index, get_all, new_exercise,get_by_id])
 }
 

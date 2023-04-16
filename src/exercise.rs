@@ -24,15 +24,12 @@ pub struct NewExercise {
 #[serde(crate = "rocket::serde")]
 pub struct Exercise {
     pub exercise_id: i32,
-    name: String,
+    pub name: String,
     description: String,
     video: String,
 }
 
 impl Exercise {
-    pub fn name(&self) -> String {
-        self.name.to_string()
-    }
 
     pub fn get_all(connection: &mut MysqlConnection) -> Vec<Exercise> {
         all_exercises.load::<Exercise>(connection).expect("error")
